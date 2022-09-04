@@ -1,12 +1,15 @@
-const express = require('express'); 
+const express = require("express");
 // const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
-const {User} = require('./models/user');
-const mysql = require('mysql');
-const cors = require('cors');
+const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
+const { User } = require("./models/user");
+const mysql = require("mysql");
+const cors = require("cors");
+const path = require("path");
 
 const app = express(); // make server
+const DIST_DIR = path.join(__dirname, "../Client/dist");
+console.log(DIST_DIR);
 
 // mongoose.connect(
 //   'mongodb+srv://ujunglim:1234qwer@cluster0.yx9elte.mongodb.net/?retryWrites=true&w=majority',
@@ -14,10 +17,11 @@ const app = express(); // make server
 // ).then(() => console.log('DB connected!'))
 // .catch(err => console.error(err));
 
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(cors());
+app.use(express.static(DIST_DIR));
 
 // // routing
 // app.post('/api/users/register', (req, res) => {
@@ -30,29 +34,38 @@ app.use(cors());
 
 // mysql
 const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '370123',
-  database: 'sys'
-})
+  host: "localhost",
+  user: "root",
+  password: "370123",
+  database: "sys",
+});
 
 connection.connect();
 
-connection.query('SELECT email, firstName FROM sys.login WHERE age = 19;', (err, rows, fields) => {
-  if (err) throw err
+connection.query(
+  "SELECT email, firstName FROM sys.login WHERE age = 19;",
+  (err, rows, fields) => {
+    if (err) throw err;
 
-  // console.log(rows)
-})
+    // console.log(rows)
+  }
+);
 
-app.post('/api/email', (req, res) => {
-	console.log(req.body)
-  const sql = `SELECT firstName FROM sys.login WHERE email = '${req.body.email}';`
-  console.log(sql)
+// frontend server
+// Send index.html when the user access the web
+app.get("/", function (req, res) {
+  res.sendFile(path.join(DIST_DIR, "index.html"));
+});
+
+app.post("/api/email", (req, res) => {
+  console.log(req.body);
+  const sql = `SELECT firstName FROM sys.login WHERE email = '${req.body.email}';`;
+  console.log(sql);
   connection.query(sql, (err, rows, fields) => {
-    if (err) throw err
-	  res.send({firstname: rows[0].firstName});
-  })
+    if (err) throw err;
+    res.send({ firstname: rows[0].firstName });
+  });
 });
 
 app.listen(5000); // server listen 5000
-console.log('listening 5000')
+console.log("listening 5000");
