@@ -67,5 +67,7 @@ app.post("/api/email", (req, res) => {
   });
 });
 
-app.listen(5000); // server listen 5000
-console.log("listening 5000");
+app.listen(5000, (err) => {
+  if (err) throw err;
+  console.log("listening 5000");
+});
